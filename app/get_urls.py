@@ -10,10 +10,10 @@ EMAIL    = os.getenv("EON_EMAIL")
 PASSWORD = os.getenv("EON_PASSWORD")
 
 TARGET_URL = (
-    "https://one.eonetwork.org/people?lat=38.7945952&lng=-106.5348379&address=United+States&country=United+States&location_level=country&country_code=US&bounds=%5B%5B72.7087158%2C-173.2992296%5D%2C%5B15.7760139%2C-66.3193754%5D%5D"
+    "https://one.eonetwork.org/people"
 )
 
-OUTPUT_FILE  = "eon_usa_profiles.json"
+OUTPUT_FILE  = "eon_all_profiles.json"
 PROFILE_SEL  = 'a[href*="/page/profile?id="]'
 
 
