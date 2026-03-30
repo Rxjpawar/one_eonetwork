@@ -9,7 +9,7 @@ load_dotenv()
 EMAIL       = os.getenv("EON_EMAIL")
 PASSWORD    = os.getenv("EON_PASSWORD")
 TARGET_URL  = "https://one.eonetwork.org/people"
-OUTPUT_FILE = "eon_all_profiles2.json"
+OUTPUT_FILE = "eon_all_profiles.json"
 PROFILE_SEL = 'a[href*="/page/profile?id="]'
 
 # Refresh browser context every N pages to prevent memory crash
@@ -348,7 +348,7 @@ def _save(profiles_dict, filename, last_page=1):
 
 async def scrape_all_pages(browser, context, start_page=1, existing_profiles=None):
     all_profiles = dict(existing_profiles) if existing_profiles else {}
-    current_page = 1  # Always click through from page 1 — EON doesn't support URL page jumps
+    current_page = start_page
     print(f"[+] Starting with {len(all_profiles)} existing profiles in memory.")
 
     # Open first page and login
@@ -361,17 +361,8 @@ async def scrape_all_pages(browser, context, start_page=1, existing_profiles=Non
         await page.goto(TARGET_URL, wait_until="domcontentloaded", timeout=45000)
     except PlaywrightTimeoutError:
         pass
-    await page.wait_for_timeout(5000)
 
-    # If resuming mid-way, jump to correct page via URL param
-    if start_page > 1:
-        print(f"[*] Jumping to resume page {start_page}...")
-        ok = await navigate_to_page(page, start_page)
-        if not ok:
-            print(f"[!] Could not jump to page {start_page}, starting from 1")
-            current_page = 1
-
-    # Wait until at least 5 profiles are visible (poll every 2s, up to 20s)
+    # Wait until at least 5 profiles are visible
     print("[*] Waiting for member list to fully render...")
     for tick in range(10):
         await page.wait_for_timeout(2000)
@@ -393,7 +384,24 @@ async def scrape_all_pages(browser, context, start_page=1, existing_profiles=Non
         return all_profiles
 
     total_pages = await get_total_pages(page)
-    print(f"[+] Total pages: {total_pages} | Starting from page: {current_page}\n")
+
+    # ── Navigate to start_page by clicking Next repeatedly ───────────────
+    if start_page > 1:
+        print(f"[*] Clicking through to page {start_page} (this may take a minute)...")
+        for p_num in range(1, start_page):
+            prev_href = await get_first_profile_href(page)
+            clicked = await click_next_page(page)
+            if not clicked:
+                print(f"[!] Could not click next at page {p_num}. Starting from here.")
+                current_page = p_num + 1
+                break
+            await wait_for_page_change(page, prev_href)
+            await page.wait_for_timeout(200)
+            if p_num % 10 == 0:
+                print(f"    ... navigated to page {p_num + 1}")
+        print(f"[+] Reached page {current_page}")
+
+    print(f"[+] Total pages: {total_pages} | Scraping from page: {current_page}\n")
 
     while current_page <= total_pages:
         try:
@@ -463,7 +471,7 @@ async def get_urls():
 
     # ── One-time override: force resume from a specific page ──────────────
     # Remove or comment this out after the run completes successfully
-    FORCE_RESUME_PAGE = 0
+    FORCE_RESUME_PAGE = 150
     if FORCE_RESUME_PAGE > 1 and start_page < FORCE_RESUME_PAGE:
         print(f"[*] Forcing resume from page {FORCE_RESUME_PAGE}")
         start_page = FORCE_RESUME_PAGE
