@@ -23,7 +23,7 @@ clean_data = {
     "profiles": clean_profiles
 }
 
-with open("backup_data/eon_clean_profiles.json", "w", encoding="utf-8") as file:
+with open("backup_data/eon_clean_all_profiles.json", "w", encoding="utf-8") as file:
     json.dump(clean_data, file, ensure_ascii=False, indent=2)
 
 print(f"India profiles:  {len(a)}")
