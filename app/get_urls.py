@@ -13,7 +13,7 @@ TARGET_URL = (
     "https://one.eonetwork.org/people"
 )
 
-OUTPUT_FILE  = "eon_all_profiles.json"
+OUTPUT_FILE  = "eon_all_profiles_2.json"
 PROFILE_SEL  = 'a[href*="/page/profile?id="]'
 
 
