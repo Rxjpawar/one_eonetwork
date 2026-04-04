@@ -1,15 +1,15 @@
+import os
 import json
 from app.agent import ai_agent
 from app.get_data import fetch_profile_text
 from app.save_to_exel import save_to_excel
-import os
 from dotenv import load_dotenv
 load_dotenv()
 
 
 def pipeline_flow(EXEL_FILE,URLS_FILE,FAILED_URLS_FILE):
 
-    with open(f"urls/{URLS_FILE}", "r", encoding="utf-8") as file:
+    with open(f"urls/{URLS_FILE}.json", "r", encoding="utf-8") as file:
         url_data = json.load(file)
 
     total = len(url_data["profiles"])
@@ -65,7 +65,7 @@ def pipeline_flow(EXEL_FILE,URLS_FILE,FAILED_URLS_FILE):
 
     # Save failed profiles list for retry
     if failed:
-        with open(f"ulrs/{FAILED_URLS_FILE}", "w", encoding="utf-8") as f:
+        with open(f"ulrs_but_failed/{FAILED_URLS_FILE}.json", "w", encoding="utf-8") as f:
             json.dump(failed, f, indent=2, ensure_ascii=False)
         print(f"\n[!] {len(failed)} profiles failed. See failed_profiles.json")
 
