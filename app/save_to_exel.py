@@ -70,4 +70,4 @@ def save_to_excel(rows, FILE_PATH):
         for cell in row:
             cell.alignment = Alignment(wrap_text=True, vertical="top")
 
-    wb.save(FILE_PATH)
+    wb.save(f"data/{FILE_PATH}")
