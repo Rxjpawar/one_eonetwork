@@ -11,7 +11,7 @@ EON_PASSWORD = os.getenv("EON_PASSWORD")
 
 def fetch_profile_text(profile_url: str) -> str:
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser =p.chromium.launch(headless=False, slow_mo=50)
         context = browser.new_context()
         page = context.new_page()
 
@@ -92,3 +92,6 @@ def fetch_profile_text(profile_url: str) -> str:
 
         browser.close()
         return text.strip()
+
+
+print(fetch_profile_text("https://one.eonetwork.org/page/profile?id=7524821"))
